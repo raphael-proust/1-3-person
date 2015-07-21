@@ -14,6 +14,9 @@ type world = {
 	turn: Input.t option;
 }
 
+val init: world
+val empty: world
+
 type r =
 	| W of world
 	| GameOver

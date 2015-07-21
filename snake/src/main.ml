@@ -1,59 +1,27 @@
 
-(* TODO: a non-constant world *)
-let init = { Model.
-	dimensions = (25,25);
-	apples = [(18,12);];
-	cells = [(13,12);(13,11);];
-	position = (13,13);
-	direction = Model.U;
-	turn = None;
-}
-
-let empty = { init with Model.
-	apples = [];
-	cells = [];
-	position = (0,0);
-	turn = None;
-}
-
-type event =
+type i =
 	| Tick
 	| Input of Input.t
-
-let tick, kick =
-	let (tick, kick) = React.E.create () in
-	let clock =
-		React.E.map (fun _ ->
-			React.E.map (fun _ ->
-					kick Tick
-				)
-				(Useri.Time.tick 0.5)
-			)
-		tick in
-	Useri.App.sink_event clock;
-	(tick, kick)
-
-let moves =
-	React.E.select [
-		React.E.stamp (Useri.Key.up (`Arrow `Left)) (Input Input.L);
-		React.E.stamp (Useri.Key.up (`Arrow `Right)) (Input Input.R);
-	]
 
 let world =
 	React.S.fold
 		(fun world e -> match e with
 			| Tick -> begin match Model.step world with
 				| Model.W w -> w
-				| Model.GameOver -> empty
+				| Model.GameOver -> Model.empty
 			end
 			| Input i -> Model.turn world i
 		)
-		init
-		(React.E.select [tick; moves;])
+		Model.init
+		React.E.(select [
+			map (fun x -> Input x) Input.input;
+			stamp Input.ticks Tick;
+		])
+
 
 let setup () =
 	let display =
-		let img = React.S.l1 Render.display world in
+		let img = React.S.map Render.display world in
 		React.S.Pair.pair Useri.Surface.size img
 	in
     let render_display r _ (size, img) =
@@ -84,6 +52,6 @@ let start () =
 	Useri_jsoo.Key.set_event_target key_target;
 	match Useri.App.init ~surface () with
 	| `Error e -> Printf.eprintf "%s" e; exit 1
-	| `Ok () -> setup (); kick Tick; Useri.App.run ()
+	| `Ok () -> setup (); Input.kick (); Useri.App.run ()
 
 let () = start ()

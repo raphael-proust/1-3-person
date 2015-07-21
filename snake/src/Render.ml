@@ -10,12 +10,16 @@ let rotate ?(center=V2.v 0. 0.) r image = image >>
 
 let cell =
 	I.const Color.black >>
-	I.cut (P.empty >> P.rect (Box2.v (P2.v 0. 0.) (Size2.v 1. 1.)))
+	I.cut (P.empty >> P.rect (Box2.v (P2.v 0.1 0.1) (Size2.v 0.8 0.8)))
 
 let apple =
+	cell
+(*
 	I.const Color.black >>
 	I.cut (P.empty >> P.circle (P2.v 0.5 0.5) 0.5)
+*)
 
+(*
 let head_straight =
 	I.const Color.black >>
 	I.cut
@@ -42,6 +46,7 @@ let head_left =
 		P.line (P2.v 1. 1.) >>
 		P.line (P2.v 0. 1.) >>
 		P.close)
+*)
 
 let display_raw (world: Model.world) =
 	let place (x,y) image = image >>
@@ -57,6 +62,7 @@ let display_raw (world: Model.world) =
 			image
 			cells
 	in
+(*
 	let add_head xy t d image =
 		image >> I.blend (
 			(match t with
@@ -71,13 +77,20 @@ let display_raw (world: Model.world) =
 			place xy
 		)
 	in
+*)
 	I.void >>
 	add_apples world.Model.apples >>
-	add_cells world.Model.cells >>
-	add_head world.Model.position world.Model.turn world.Model.direction >>
+	add_cells (world.Model.position :: world.Model.cells) >>
+(* 	add_head world.Model.position world.Model.turn world.Model.direction >>
+ * 	*)
 	let width = float (fst world.Model.dimensions) in
 	let height = float (snd world.Model.dimensions) in
 	I.scale (V2.v (1. /. width) (1. /. height))
+
+let lcd_screen image =
+	I.const (Color.v 0.70 0.95 0.70 1.) >>
+	I.cut (P.empty >> P.rect (Box2.v (P2.v 0. 0.) (Size2.v 1.0 1.0))) >>
+	I.blend image
 
 let embed image =
 	let delta = 0.1 in
@@ -144,6 +157,7 @@ let display world =
 	I.const Color.white >>
 	I.blend (
 		display_raw world >>
+		lcd_screen >>
 		fst_person world
 	)
 

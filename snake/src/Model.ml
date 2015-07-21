@@ -14,6 +14,24 @@ type world = {
 	turn: Input.t option;
 }
 
+let init = {
+	dimensions = (25,25);
+	apples = [(18,12);];
+	cells = [(13,12);(13,11);];
+	position = (13,13);
+	direction = U;
+	turn = None;
+}
+
+let empty = { init with
+	apples = [];
+	cells = [];
+	position = (12,12);
+	turn = None;
+	direction = U;
+}
+
+
 let rec add_apple (w:world) : (int*int) =
 	let x = Random.int (fst w.dimensions) in
 	let y = Random.int (snd w.dimensions) in
