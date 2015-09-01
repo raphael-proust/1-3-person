@@ -12,16 +12,10 @@ type world = {
 	position: int * int;
 	direction: direction;
 	turn: Input.t option;
+	game_over: bool;
 }
 
 val init: world
-val empty: world
-
-type r =
-	| W of world
-	| GameOver
-
-val step: world -> r
-
+val step: world -> world
 val turn: world -> Input.t -> world
 

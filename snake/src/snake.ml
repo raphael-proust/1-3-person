@@ -6,10 +6,7 @@ type i =
 let world =
 	React.S.fold
 		(fun world e -> match e with
-			| Tick -> begin match Model.step world with
-				| Model.W w -> w
-				| Model.GameOver -> Model.empty
-			end
+			| Tick -> Model.step world
 			| Input i -> Model.turn world i
 		)
 		Model.init

@@ -12,6 +12,7 @@ type world = {
 	position: int * int;
 	direction: direction;
 	turn: Input.t option;
+	game_over: bool;
 }
 
 let init = {
@@ -21,31 +22,30 @@ let init = {
 	position = (13,13);
 	direction = U;
 	turn = None;
+	game_over = false;
 }
 
-let empty = { init with
-	apples = [];
-	cells = [];
-	position = (12,12);
-	turn = None;
-	direction = U;
+let game_over w = { w with
+	game_over = true;
 }
 
 
 let rec add_apple (w:world) : (int*int) =
 	let x = Random.int (fst w.dimensions) in
 	let y = Random.int (snd w.dimensions) in
-	(*TODO: test if not too close to position*)
-	if List.mem (x,y) w.apples || List.mem (x,y) w.cells then
+	if List.mem (x,y) w.apples
+	|| List.mem (x,y) w.cells
+	|| (abs (x - fst w.position) <= 1 && abs (y - snd w.position) <= 1)
+	then
 		add_apple w
 	else
 		(x,y)
 
-type r =
-	| W of world
-	| GameOver
-
 let step w =
+	if w.game_over then
+		w
+	else
+
 	let posmod a s =
 		let m = a mod s in
 		if m < 0 then s + m else m
@@ -74,7 +74,7 @@ let step w =
 	in
 
 	if List.mem nposition w.cells then
-		GameOver
+		game_over w
 	else
 
 	let (ncells, napples) =
@@ -106,7 +106,7 @@ let step w =
 				(remove_last (w.position::w.cells), apples)
 	in
 
-	W {w with
+	{w with
 		position = nposition;
 		direction = ndirection;
 		apples = napples;
