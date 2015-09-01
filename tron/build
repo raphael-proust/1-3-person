@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -e
+
+OCAMLBUILD=${OCAMLBUILD:="ocamlbuild -classic-display \
+                          -use-ocamlfind \
+                          -plugin-tag package(js_of_ocaml.ocamlbuild)"}
+
+OCAMLDOCFLAGS=${OCAMLDOCFLAGS:="-docflags -colorize-code,-charset,utf-8"}
+
+action ()
+{
+    case $1 in
+        default)
+            action app
+            ;;
+        app)
+            $OCAMLBUILD -no-links tron.js tron.html
+            ;;
+        clean)
+            $OCAMLBUILD -clean ;;
+        *)
+            $OCAMLBUILD $* ;;
+    esac
+}
+
+if [ $# -eq 0 ];
+then action default ;
+else action $*; fi
