@@ -13,11 +13,23 @@ let cell =
 	I.cut (P.empty >> P.rect (Box2.v (P2.v 0.1 0.1) (Size2.v 0.8 0.8)))
 
 let apple =
-	cell
-(*
 	I.const Color.black >>
-	I.cut (P.empty >> P.circle (P2.v 0.5 0.5) 0.5)
-*)
+	I.cut (P.empty >>
+		P.sub (P2.v 0.25 0.) >>
+		P.line (P2.v 0.75 0.) >>
+		P.line (P2.v 0.75 0.25) >>
+		P.line (P2.v 1. 0.25) >>
+		P.line (P2.v 1. 0.75) >>
+		P.line (P2.v 0.75 0.75) >>
+		P.line (P2.v 0.75 1.) >>
+		P.line (P2.v 0.25 1.) >>
+		P.line (P2.v 0.25 0.75) >>
+		P.line (P2.v 0. 0.75) >>
+		P.line (P2.v 0. 0.25) >>
+		P.line (P2.v 0.25 0.25) >>
+		P.close)
+
+let wall = cell
 
 (*
 let head_straight =
@@ -81,6 +93,7 @@ let display_raw (world: Model.world) =
 	I.void >>
 	add_apples world.Model.apples >>
 	add_cells (world.Model.position :: world.Model.cells) >>
+	add_cells world.Model.walls >>
 (* 	add_head world.Model.position world.Model.turn world.Model.direction >>
  * 	*)
 	let width = float (fst world.Model.dimensions) in
@@ -100,7 +113,7 @@ let embed image =
 		P.rect (Box2.v
 			(P2.v
 				(delta +. (x *. (kw +. delta)))
-				~-.(2. *. delta +. (2. *. y *. delta)))
+				~-.(2. *. delta +. (2. *. (y +. 1.) *. delta)))
 			(Size2.v kw delta)
 		)
 	in

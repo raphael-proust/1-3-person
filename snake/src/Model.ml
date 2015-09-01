@@ -12,6 +12,7 @@ type world = {
 	position: int * int;
 	direction: direction;
 	turn: Input.t option;
+	walls: (int * int) list;
 	game_over: bool;
 }
 
@@ -22,6 +23,14 @@ let init = {
 	position = (13,13);
 	direction = U;
 	turn = None;
+	walls =
+		Array.to_list (Array.init 25 (fun i -> (i,0)))
+		@ Array.to_list (Array.init 25 (fun i -> (i,24)))
+		@ Array.to_list (Array.init 4 (fun i -> (0,i+1)))
+		@ Array.to_list (Array.init 4 (fun i -> (24,i+1)))
+		@ Array.to_list (Array.init 4 (fun i -> (0,24-(i+1))))
+		@ Array.to_list (Array.init 4 (fun i -> (24,24-(i+1))))
+	;
 	game_over = false;
 }
 
@@ -35,6 +44,7 @@ let rec add_apple (w:world) : (int*int) =
 	let y = Random.int (snd w.dimensions) in
 	if List.mem (x,y) w.apples
 	|| List.mem (x,y) w.cells
+	|| List.mem (x,y) w.walls
 	|| (abs (x - fst w.position) <= 1 && abs (y - snd w.position) <= 1)
 	then
 		add_apple w
@@ -73,7 +83,9 @@ let step w =
 		(posmod x (fst w.dimensions), posmod y (snd w.dimensions))
 	in
 
-	if List.mem nposition w.cells then
+	if List.mem nposition w.cells
+	|| List.mem nposition w.walls
+	then
 		game_over w
 	else
 
@@ -115,6 +127,9 @@ let step w =
 	}
 
 let turn (w:world) (t:Input.t) =
+	if w.game_over then
+		w
+	else
 	match (w.turn, t) with
 	| (Some Input.L, Input.L) | (Some Input.R, Input.R) -> w
 	| (Some Input.L, Input.R) | (Some Input.R, Input.L) ->

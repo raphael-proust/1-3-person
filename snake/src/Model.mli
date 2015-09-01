@@ -12,6 +12,7 @@ type world = {
 	position: int * int;
 	direction: direction;
 	turn: Input.t option;
+	walls: (int * int) list;
 	game_over: bool;
 }
 
